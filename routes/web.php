@@ -6,6 +6,9 @@ use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CustomerAuthController;
+use App\Http\Controllers\ApiController;
+
 
 Route::group(['prefix' => 'dashboard', 'middleware' => ['auth', 'verified']], function() {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -15,6 +18,42 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth', 'verified']], fu
     
     Route::resource('products', ProductController::class);
 });
+
+Route::group(['prefix'=>'customer'], function(){
+ Route::controller(CustomerAuthController::class)->group(function(){
+ Route::group(['middleware'=>'check_customer_login'], function(){
+ //tampilkan halaman login
+ Route::get('login','login')->name('customer.login');
+ //aksi login
+ Route::post('login','store_login')->name('customer.store_login');
+ //tampilkan halaman register
+ Route::get('register','register')->name('customer.register');
+ //aksi register
+ Route::post('register','store_register')->name('customer.store_register');
+ });
+ 
+ //aksi logout
+ Route::post('logout','logout')->name('customer.logout');
+ });
+});
+
+//Route API
+
+//Route Store
+Route::apiResource('/product-categories', ProductCategoryController::class)->only('index','store');
+Route::apiResource('/products', ProductController::class)->only('index','store');
+
+//Route Show
+Route::apiResource('/product-categories', ProductCategoryController::class)->only('index','store','show');
+Route::apiResource('/products', ProductController::class)->only('index','store','show');
+
+//Route Update
+Route::apiResource('/product-categories', ProductCategoryController::class)->only('index','store','show','update');
+Route::apiResource('/products', ProductController::class)->only('index','store','show','update');
+
+//Route Delete
+Route::apiResource('/product-categories', ProductCategoryController::class)->only('index','store','show','update','destroy');
+Route::apiResource('/products', ProductController::class)->only('index','store','show','update','destroy');
 
 //kode baru diubah menjadi seperti ini
 Route::get('/', [HomepageController::class, 'index'])->name('home');
